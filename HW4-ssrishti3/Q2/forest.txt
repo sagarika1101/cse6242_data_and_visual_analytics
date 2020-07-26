@@ -1,0 +1,5 @@
+1. Decision trees are prone to overfitting, and random forests, being a collection of decision trees, help in overcoming this problem as in random forests, the different decision trees as trained on different samples of data, which makes the model less prone to overfitting, helping us achieve a better OOB accuracy.
+
+2. The random forest takes about 66.05 seconds to run.
+
+3. My random forest implementation was able to obtain an accuracy of about 85.36%

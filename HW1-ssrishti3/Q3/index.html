@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style>
+		.bar {
+	  fill: steelblue;
+	}
+	</style>
+	<title>Lego Sets by Year from Rebrickable</title>
+</head>
+
+<svg width="1200" height="700"></svg>
+<span>ssrishti3</span>
+<script src="lib/d3/d3.min.js"></script>
+
+<script>
+
+var data = d3.dsv(",", "q3.csv");
+var svg = d3.select("svg");
+var margin = 200;
+var width = svg.attr("width") - margin,
+        height = svg.attr("height") - margin;
+
+var xScale = d3.scaleTime().range ([0, width]),
+        yScale = d3.scaleLinear().range ([height, 0]);
+var g = svg.append("g")
+               .attr("transform", "translate(" + 100 + "," + 100 + ")");
+var parseTime = d3.timeParse("%Y");
+
+svg.append("text")
+   .attr("transform", "translate(100,0)")
+   .attr("x", 300)
+   .attr("y", 50)
+   .attr("font-size", "18px")
+   .text("Lego Sets by Year from Rebrickable");
+
+data.then(function(d){
+    var minYear = d3.min(d, function(p){ return parseInt(p.year); });
+    var maxYear = d3.max(d, function(p){ return parseInt(p.year); });
+    xScale.domain([parseTime(minYear), parseTime(maxYear)]);
+    var t = d.map(function(p){
+        return d3.timeParse("%Y")(p.year);
+    });
+
+    yScale.domain([0, d3.max(d, function(p) { return parseInt(p.running_total); })]);
+
+    var ticks = d.length/3;
+     g.append("g")
+         .attr("transform", "translate(0," + height + ")")
+         .call(d3.axisBottom(xScale).ticks(d3.timeYear.every(3)))
+        .append("text")
+        .attr("y", 40)
+        .attr("x", width/2)
+        .attr("text-anchor", "end")
+        .attr("stroke", "black")
+        .attr("font-size", "12px")
+        .text("Year");
+
+
+    g.append("g")
+        .call(d3.axisLeft(yScale)
+        .ticks(ticks))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("dy", "-5.1em") 
+        .attr("y", 4)
+        .attr("x", -100)
+        .attr("text-anchor", "end")
+        .attr("stroke", "black")
+        .attr("font-size", "12px")
+        .text("Running Total");
+
+    g.selectAll(".bar")
+        .data(d)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(p) { return xScale(parseTime(p.year)); })
+        .attr("y", function(p) { return yScale(parseInt(p.running_total)); })
+        .attr("width", 8)
+        .attr("height", function(p) { return height - yScale(p.running_total); });
+});
+
+
+</script>

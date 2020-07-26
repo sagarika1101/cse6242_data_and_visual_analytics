@@ -1,0 +1,9 @@
+reviews = LOAD 's3://amazon-reviews-pds/tsv/*' AS (marketplace:chararray,customer_id:chararray,review_id:chararray,product_id:chararray,product_parent:chararray,product_title:chararray,product_category:chararray,star_rating:double,helpful_votes:int,total_votes:int,vine:chararray,verified_purchase:chararray,review_headline:chararray,review_body:chararray, review_date:chararray);
+filter1 = FILTER reviews by (int)SIZE(review_body) >= 100;
+filter2 = FILTER filter1 by verified_purchase=='Y';
+filteredTable = FILTER filter2 by total_votes >= 30;
+group1 = GROUP filteredTable BY product_category;
+group2 = FOREACH group1 GENERATE group,AVG(filteredTable.star_rating) AS star_rating;
+group2Order = ORDER group2 BY star_rating DESC, group ASC;
+answer = LIMIT group2Order 15;
+STORE answer INTO 's3://cse6242oan-2019fall-ssrishti3-logging/output-big' USING PigStorage('\t');

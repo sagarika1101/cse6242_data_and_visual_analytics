@@ -1,0 +1,1 @@
+We use logarithmic, square root and other non-linear scales in situations when we need to handle skewness of larger values or to show percent change or multiplicative factors. Non-linear scales handle the data spread better than linear scales in these cases.

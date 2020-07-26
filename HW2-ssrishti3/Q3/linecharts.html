@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style type="text/css">
+		.eightPlus {
+			  fill: none;
+			  stroke: #900C3F;
+			  stroke-width: 1;
+			}
+
+		.sevenPlus {
+			  fill: none;
+			  stroke: #C70039;
+			  stroke-width: 1;
+			}
+
+		.sixPlus {
+			  fill: none;
+			  stroke: #FF5733;
+			  stroke-width: 1;
+			}
+
+		.fivePlus {
+			  fill: none;
+			  stroke: #FFC300;
+			  stroke-width: 1;
+			}
+		.legend {
+			stroke: black;
+		}
+		@media print {
+		  .pagebreak {
+		      clear: both;
+		      page-break-after: always;
+		  }
+		}
+	</style>
+	<title>Earthquake count by States</title>
+</head>
+<script src="../lib/d3.v5.min.js"></script>
+
+<svg width="1000" height="500" id="svg1"></svg>  
+<script>
+	//chart1
+	var svg1=d3.select('#svg1');
+
+	var width = +svg1.attr('width');
+	var height = +svg1.attr('height');
+
+	var renderChart = data => {
+		var title1 = "Worldwide Earthquake stats 2000-2015";
+
+		var xAxisLabel = "Year";
+		var yAxisLabel = "Num of Earthquakes";
+
+		var xValue = d => d.year;
+		var yValue1 = d => d.eightPlus;
+		var yValue2 = d => d.sevenPlus;
+		var yValue3 = d => d.sixPlus;
+		var yValue4 = d => d.fivePlus;
+
+		var margin = { top: 60, right: 160, bottom: 88, left: 105 };
+		var innerWidth = width - margin.left - margin.right;
+		var innerHeight = height - margin.top - margin.bottom;
+
+		var xScale = d3.scaleTime()
+							.domain(d3.extent(data,xValue))
+							.range([0,innerWidth]);
+
+		var yScale = d3.scaleLinear()
+							.domain([0,d3.max(data,d => d.fivePlus)])
+							.range([innerHeight,0]);
+
+		//chart1
+		var g1 = svg1.append('g')
+    					.attr('transform', `translate(${margin.left},${margin.top})`);
+
+    	var xAxis = d3.axisBottom(xScale)
+					    .tickPadding(15);
+		  
+		var yAxis = d3.axisLeft(yScale)
+					    .tickPadding(10);
+
+		//chart1
+		var yAxisG1 = g1.append('g').call(yAxis);
+
+		//chart1
+		yAxisG1.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', -60)
+			      .attr('x', -innerHeight / 2)
+			      .attr('fill', 'black')
+			      .attr('transform', `rotate(-90)`)
+			      .attr('text-anchor', 'middle')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(yAxisLabel);
+
+		//chart1
+		var xAxisG1 = g1.append('g').call(xAxis)
+    						.attr('transform', `translate(0,${innerHeight})`);
+
+    	//chart1
+    	xAxisG1.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', 60)
+			      .attr('x', innerWidth / 2)
+			      .attr('fill', 'black')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(xAxisLabel);
+
+		//chart 1
+		//eightPlus
+		var line1 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue1(d)));
+		//sevenPlus
+		var line2 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue2(d)));
+		//sixPlus
+		var line3 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue3(d)));
+		//fivePlus
+		var line4 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue4(d)));
+
+		//chart1, eightPlus
+		g1.append('path')
+	      .attr('class', 'eightPlus')
+	      .attr('d', line1(data));
+	    //chart1, sevenPlus
+	    g1.append('path')
+	      .attr('class', 'sevenPlus')
+	      .attr('d', line2(data));
+	    //chart1, sixPlus
+	    g1.append('path')
+	      .attr('class', 'sixPlus')
+	      .attr('d', line3(data));
+	    //chart1, fivePlus
+	    g1.append('path')
+	      .attr('class', 'fivePlus')
+	      .attr('d', line4(data));
+  
+	    //chart1
+	    g1.append('text')
+	      .attr('class', 'title')
+	      .attr('y', -10)
+	      .attr('x',180)
+	      .attr('stroke','black')
+	      .attr('font-size','18px')
+	      .text(title1);
+
+	//adding legends     
+	var colors = ['#900C3F', '#C70039', '#FF5733', '#FFC300'];
+	var colorClasses = ['8.0+', '7_7.9','6_6.9','5_5.9'];
+
+	var colorScale = d3.scaleOrdinal()
+						  .domain(colorClasses)
+						  .range(colors);
+
+	//adding color legends
+	var colorLegend = (object, args) => {
+		  var {
+		    colorScale,
+		    radius,
+		    spacing,
+		    textOffset
+		  } = args;
+
+		  var colors = object.selectAll('g')
+		    						.data(colorScale.domain());
+		  var merging = colors.enter().append('g');
+		  
+		  merging.merge(colors)
+				      .attr('transform', (d, i) =>
+				        `translate(0, ${i * spacing})`
+				      );
+
+		  merging.append('circle')
+				    .merge(colors.select('circle'))
+				      .attr('r', radius)
+				      .attr('fill', colorScale);
+
+		  merging.append('text')
+				    .merge(colors.select('text'))
+				      .text(d => d)
+				      .attr('dy', '0.32em')
+				      .attr('x', textOffset);
+		}
+
+	svg1.append('g')
+			    .attr('transform', `translate(870,70)`)
+			    .attr('class','legend')
+			    .call(colorLegend, {
+			      colorScale,
+			      radius: 8,
+			      spacing: 20,
+			      textOffset: 15
+			    });
+	};
+
+	var parseTime = d3.timeParse("%Y");
+
+	d3.csv('earthquakes.csv')
+		.then(data => {
+		    data.forEach(d => {
+		      d.year = parseTime(+d.year);
+		      d.eightPlus = +d['8.0+'];
+		      d.sevenPlus = +d['7_7.9'];
+		      d.sixPlus = +d['6_6.9'];
+		      d.fivePlus = +d['5_5.9'];
+		      d.deaths = +d['Estimated Deaths'];
+		    });
+		    renderChart(data);
+		  });
+</script>
+<div class="pagebreak"></div>
+
+<svg width="1000" height="500" id="svg2"></svg>
+<script>
+	//chart2
+	const svg2=d3.select('#svg2');
+
+	width = +svg1.attr('width');
+	height = +svg1.attr('height');
+
+	const renderChart2 = data => {
+		const title2 = "Worldwide Earthquake stats 2000-2015 with symbols"
+
+		const xAxisLabel = "Year";
+		const yAxisLabel = "Num of Earthquakes";
+
+		const xValue = d => d.year;
+		const yValue1 = d => d.eightPlus;
+		const yValue2 = d => d.sevenPlus;
+		const yValue3 = d => d.sixPlus;
+		const yValue4 = d => d.fivePlus;
+		const deaths = d => d.estimatedDeaths;
+
+		const margin = { top: 60, right: 160, bottom: 88, left: 105 };
+		const innerWidth = width - margin.left - margin.right;
+		const innerHeight = height - margin.top - margin.bottom;
+
+		const xScale = d3.scaleTime()
+							.domain(d3.extent(data,xValue))
+							.range([0,innerWidth]);
+
+		const yScale = d3.scaleLinear()
+							.domain([0,d3.max(data,d => d.fivePlus)])
+							.range([innerHeight,0]);
+
+		//chart2
+    	const g2 = svg2.append('g')
+    					.attr('transform', `translate(${margin.left},${margin.top})`);
+
+    	const xAxis = d3.axisBottom(xScale)
+					    .tickPadding(15);
+		  
+		const yAxis = d3.axisLeft(yScale)
+					    .tickPadding(10);
+
+		//chart2
+		const yAxisG2 = g2.append('g').call(yAxis);
+		//chart2
+		yAxisG2.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', -60)
+			      .attr('x', -innerHeight / 2)
+			      .attr('fill', 'black')
+			      .attr('transform', `rotate(-90)`)
+			      .attr('text-anchor', 'middle')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(yAxisLabel);
+
+		//chart2
+    	const xAxisG2 = g2.append('g').call(xAxis)
+    						.attr('transform', `translate(0,${innerHeight})`);
+    	//chart2
+		xAxisG2.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', 60)
+			      .attr('x', innerWidth / 2)
+			      .attr('fill', 'black')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(xAxisLabel);
+
+		//chart 2
+		//eightPlus
+		const line1 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue1(d)));
+		//sevenPlus
+		const line2 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue2(d)));
+		//sixPlus
+		const line3 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue3(d)));
+		//fivePlus
+		const line4 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale(yValue4(d)));
+
+		//chart2, eightPlus
+	    g2.append('path')
+	      .attr('class', 'eightPlus')
+	      .attr('d', line1(data));
+	    g2.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill','#900C3F')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale(yValue1(d)));
+	    //chart2, sevenPlus
+	    g2.append('path')
+	      .attr('class', 'sevenPlus')
+	      .attr('d', line2(data));
+	    g2.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#C70039')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale(yValue2(d)));
+	    //chart2, sixPlus
+	    g2.append('path')
+	      .attr('class', 'sixPlus')
+	      .attr('d', line3(data));
+	    g2.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FF5733')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale(yValue3(d)));
+	    //chart2, fivePlus
+	    g2.append('path')
+	      .attr('class', 'fivePlus')
+	      .attr('d', line4(data));
+	    g2.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FFC300')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale(yValue4(d)));
+
+	    //chart2
+	    g2.append('text')
+	      .attr('class', 'title')
+	      .attr('y', -20)
+	      .attr('x',180)
+	      .attr('stroke','black')
+	      .attr('font-size','18px')
+	      .text(title2);
+
+	    //adding legends     
+		const colors = ['#900C3F', '#C70039', '#FF5733', '#FFC300'];
+		const colorClasses = ['8.0+', '7_7.9','6_6.9','5_5.9'];
+
+		const colorScale = d3.scaleOrdinal()
+							  .domain(colorClasses)
+							  .range(colors);
+
+		//adding color legends
+		const colorLegend = (object, args) => {
+			  const {
+			    colorScale,
+			    radius,
+			    spacing,
+			    textOffset
+			  } = args;
+
+			  const colors = object.selectAll('g')
+			    						.data(colorScale.domain());
+			  const merging = colors.enter().append('g');
+			  
+			  merging.merge(colors)
+					      .attr('transform', (d, i) =>
+					        `translate(0, ${i * spacing})`
+					      );
+
+			  merging.append('circle')
+					    .merge(colors.select('circle'))
+					      .attr('r', radius)
+					      .attr('fill', colorScale);
+
+			  merging.append('text')
+					    .merge(colors.select('text'))
+					      .text(d => d)
+					      .attr('dy', '0.32em')
+					      .attr('x', textOffset);
+			}
+
+		svg2.append('g')
+				    .attr('transform', `translate(870,70)`)
+				    .attr('class','legend')
+				    .call(colorLegend, {
+				      colorScale,
+				      radius: 8,
+				      spacing: 20,
+				      textOffset: 15
+				    });
+
+	};
+
+	var parseTime = d3.timeParse("%Y");
+
+	d3.csv('earthquakes.csv')
+		.then(data => {
+		    data.forEach(d => {
+		      d.year = parseTime(+d.year);
+		      d.eightPlus = +d['8.0+'];
+		      d.sevenPlus = +d['7_7.9'];
+		      d.sixPlus = +d['6_6.9'];
+		      d.fivePlus = +d['5_5.9'];
+		      d.deaths = +d['Estimated Deaths'];
+		    });
+		    renderChart2(data);
+		  });
+</script>
+<div class="pagebreak"></div>
+
+<svg width="1000" height="500" id="svg3"></svg>
+<script>
+	//chart3
+	const svg3=d3.select('#svg3');
+
+	width = +svg1.attr('width');
+	height = +svg1.attr('height');
+
+	const renderChart3 = data => {
+		const title3 = "Worldwide Earthquake stats 2000-2015 square root scale"
+		
+		const xAxisLabel = "Year";
+		const yAxisLabel = "Num of Earthquakes";
+
+		const xValue = d => d.year;
+		const yValue1 = d => d.eightPlus;
+		const yValue2 = d => d.sevenPlus;
+		const yValue3 = d => d.sixPlus;
+		const yValue4 = d => d.fivePlus;
+		const deaths = d => d.estimatedDeaths;
+
+		const margin = { top: 60, right: 160, bottom: 88, left: 105 };
+		const innerWidth = width - margin.left - margin.right;
+		const innerHeight = height - margin.top - margin.bottom;
+
+		const xScale = d3.scaleTime()
+							.domain(d3.extent(data,xValue))
+							.range([0,innerWidth]);
+
+		const yScale3 = d3.scaleSqrt()
+							.domain([0,d3.max(data,d => d.fivePlus)])
+							.range([innerHeight,0]);
+
+		//chart3
+    	const g3 = svg3.append('g')
+    					.attr('transform', `translate(${margin.left},${margin.top})`);
+
+    	const xAxis = d3.axisBottom(xScale)
+					    .tickPadding(15);
+
+		//chart3
+		const yAxis3 = d3.axisLeft(yScale3)
+							.tickPadding(10);
+
+		//chart3
+		const yAxisG3 = g3.append('g').call(yAxis3);
+		//chart3
+		yAxisG3.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', -60)
+			      .attr('x', -innerHeight / 2)
+			      .attr('fill', 'black')
+			      .attr('transform', `rotate(-90)`)
+			      .attr('text-anchor', 'middle')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(yAxisLabel);
+
+		//chart3
+    	const xAxisG3 = g3.append('g').call(xAxis)
+    						.attr('transform', `translate(0,${innerHeight})`);
+    	//chart3
+		xAxisG3.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', 60)
+			      .attr('x', innerWidth / 2)
+			      .attr('fill', 'black')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(xAxisLabel);
+
+		//chart 3
+		//eightPlus
+		const line13 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale3(yValue1(d)));
+		//sevenPlus
+		const line23 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale3(yValue2(d)));
+		//sixPlus
+		const line33 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale3(yValue3(d)));
+		//fivePlus
+		const line43 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => yScale3(yValue4(d)));
+
+		//chart3, eightPlus
+	    g3.append('path')
+	      .attr('class', 'eightPlus')
+	      .attr('d', line13(data));
+	    g3.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill','#900C3F')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale3(yValue1(d)));
+	    //chart3, sevenPlus
+	    g3.append('path')
+	      .attr('class', 'sevenPlus')
+	      .attr('d', line23(data));
+	    g3.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#C70039')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale3(yValue2(d)));
+	    //chart3, sixPlus
+	    g3.append('path')
+	      .attr('class', 'sixPlus')
+	      .attr('d', line33(data));
+	    g3.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FF5733')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale3(yValue3(d)));
+	    //chart3, fivePlus
+	    g3.append('path')
+	      .attr('class', 'fivePlus')
+	      .attr('d', line43(data));
+	    g3.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FFC300')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale3(yValue4(d)));
+
+	    //chart3
+	    g3.append('text')
+	      .attr('class', 'title')
+	      .attr('y', -20)
+	      .attr('x',180)
+	      .attr('stroke','black')
+	      .attr('font-size','18px')
+	      .text(title3);
+
+	    const colors = ['#900C3F', '#C70039', '#FF5733', '#FFC300'];
+		const colorClasses = ['8.0+', '7_7.9','6_6.9','5_5.9'];
+
+		const colorScale = d3.scaleOrdinal()
+							  .domain(colorClasses)
+							  .range(colors);
+
+		//adding color legends
+		const colorLegend = (object, args) => {
+			  const {
+			    colorScale,
+			    radius,
+			    spacing,
+			    textOffset
+			  } = args;
+
+			  const colors = object.selectAll('g')
+			    						.data(colorScale.domain());
+			  const merging = colors.enter().append('g');
+			  
+			  merging.merge(colors)
+					      .attr('transform', (d, i) =>
+					        `translate(0, ${i * spacing})`
+					      );
+
+			  merging.append('circle')
+					    .merge(colors.select('circle'))
+					      .attr('r', radius)
+					      .attr('fill', colorScale);
+
+			  merging.append('text')
+					    .merge(colors.select('text'))
+					      .text(d => d)
+					      .attr('dy', '0.32em')
+					      .attr('x', textOffset);
+			}
+
+		svg3.append('g')
+			    .attr('transform', `translate(870,70)`)
+			    .attr('class','legend')
+			    .call(colorLegend, {
+			      colorScale,
+			      radius: 8,
+			      spacing: 20,
+			      textOffset: 15
+			    });
+
+	};
+
+	var parseTime = d3.timeParse("%Y");
+
+	d3.csv('earthquakes.csv')
+		.then(data => {
+		    data.forEach(d => {
+		      d.year = parseTime(+d.year);
+		      d.eightPlus = +d['8.0+'];
+		      d.sevenPlus = +d['7_7.9'];
+		      d.sixPlus = +d['6_6.9'];
+		      d.fivePlus = +d['5_5.9'];
+		      d.deaths = +d['Estimated Deaths'];
+		    });
+		    renderChart3(data);
+		  });
+</script>
+<div class="pagebreak"></div>
+
+<svg width="1000" height="500" id="svg4"></svg>
+<script>
+	//chart4
+	const svg4=d3.select('#svg4');
+
+	const width4 = +svg1.attr('width');
+	const height4 = +svg1.attr('height');
+
+	const renderChart4 = data => {
+		const title4 = "Worldwide Earthquake stats 2000-2015 log scale"
+
+		const xAxisLabel = "Year";
+		const yAxisLabel = "Num of Earthquakes";
+
+		const xValue = d => d.year;
+		const yValue1 = d => d.eightPlus;
+		const yValue2 = d => d.sevenPlus;
+		const yValue3 = d => d.sixPlus;
+		const yValue4 = d => d.fivePlus;
+		const deaths = d => d.estimatedDeaths;
+
+		const margin4 = { top: 60, right: 160, bottom: 88, left: 105 };
+		const innerWidth4 = width4 - margin4.left - margin4.right;
+		const innerHeight4 = height4 - margin4.top - margin4.bottom;
+
+		const xScale = d3.scaleTime()
+							.domain(d3.extent(data,xValue))
+							.range([0,innerWidth4]);
+
+		const yScale4 = d3.scaleLog()
+							.domain([d3.min(data,d => { 
+								if(d.eightPlus==0)
+									return 1;
+								else
+									return d.eightPlus; })
+							,d3.max(data,d => d.fivePlus)])
+							.range([innerHeight4,0]);
+
+		//chart4
+    	const g4 = svg4.append('g')
+    					.attr('transform', `translate(${margin4.left},${margin4.top})`);
+
+    	const xAxis = d3.axisBottom(xScale)
+					    .tickPadding(15);
+		  
+		//chart4
+		const yAxis4 = d3.axisLeft(yScale4)
+							.tickPadding(10);
+		//chart4
+		const yAxisG4 = g4.append('g').call(yAxis4);
+
+		//chart4
+		yAxisG4.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', -60)
+			      .attr('x', -innerHeight4 / 2)
+			      .attr('fill', 'black')
+			      .attr('transform', `rotate(-90)`)
+			      .attr('text-anchor', 'middle')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(yAxisLabel);
+
+		//chart4
+    	const xAxisG4 = g4.append('g').call(xAxis)
+    						.attr('transform', `translate(0,${innerHeight4})`);
+
+    	//chart4
+		xAxisG4.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', 60)
+			      .attr('x', innerWidth4 / 2)
+			      .attr('fill', 'black')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(xAxisLabel);
+
+		//chart 4
+		//eightPlus
+		const line14 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => {
+								if(yValue1(d) == 0){
+									return yScale4(1);
+								}
+								return yScale4(yValue1(d));
+							});
+		//sevenPlus
+		const line24 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => {
+								if(yValue2(d) == 0){
+									return yScale4(1);
+								}
+								return yScale4(yValue2(d));
+							});
+		//sixPlus
+		const line34 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => {
+								if(yValue3(d) == 0){
+									return yScale4(1);
+								}
+								return yScale4(yValue3(d));
+							});
+		//fivePlus
+		const line44 = d3.line()
+						    .x(d => xScale(xValue(d)))
+						    .y(d => {
+								if(yValue4(d) == 0){
+									return yScale4(1);
+								}
+								return yScale4(yValue4(d));
+							});
+
+		//chart4, eightPlus
+	    g4.append('path')
+	      .attr('class', 'eightPlus')
+	      .attr('d', line14(data));
+	    g4.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill','#900C3F')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => {
+								if(yValue1(d) == 0){
+									return yScale4(1);
+								}
+								return yScale4(yValue1(d));
+							});
+	    //chart4, sevenPlus
+	    g4.append('path')
+	      .attr('class', 'sevenPlus')
+	      .attr('d', line24(data));
+	    g4.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#C70039')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale4(yValue2(d)));
+	    //chart4, sixPlus
+	    g4.append('path')
+	      .attr('class', 'sixPlus')
+	      .attr('d', line34(data));
+	    g4.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FF5733')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale4(yValue3(d)));
+	    //chart4, fivePlus
+	    g4.append('path')
+	      .attr('class', 'fivePlus')
+	      .attr('d', line44(data));
+	    g4.selectAll("line-circle")
+    		.data(data)
+	    	.enter().append("circle")
+	        .attr("class", "data-circle")
+	        .attr('fill', '#FFC300')
+	        .attr("r", d => Math.log(d.deaths/2) - 2)
+	        .attr("cx", d=> xScale(xValue(d)))
+	        .attr("cy", d => yScale4(yValue4(d)));
+
+	    //chart4
+	    g4.append('text')
+	      .attr('class', 'title')
+	      .attr('y', -20)
+	      .attr('x',180)
+	      .attr('stroke','black')
+	      .attr('font-size','18px')
+	      .text(title4);
+
+	    const colors = ['#900C3F', '#C70039', '#FF5733', '#FFC300'];
+		const colorClasses = ['8.0+', '7_7.9','6_6.9','5_5.9'];
+
+		const colorScale = d3.scaleOrdinal()
+							  .domain(colorClasses)
+							  .range(colors);
+
+		//adding color legends
+		const colorLegend = (object, args) => {
+			  const {
+			    colorScale,
+			    radius,
+			    spacing,
+			    textOffset
+			  } = args;
+
+			  const colors = object.selectAll('g')
+			    						.data(colorScale.domain());
+			  const merging = colors.enter().append('g');
+			  
+			  merging.merge(colors)
+					      .attr('transform', (d, i) =>
+					        `translate(0, ${i * spacing})`
+					      );
+
+			  merging.append('circle')
+					    .merge(colors.select('circle'))
+					      .attr('r', radius)
+					      .attr('fill', colorScale);
+
+			  merging.append('text')
+					    .merge(colors.select('text'))
+					      .text(d => d)
+					      .attr('dy', '0.32em')
+					      .attr('x', textOffset);
+			}
+
+		svg4.append('g')
+			    .attr('transform', `translate(870,70)`)
+			    .attr('class','legend')
+			    .call(colorLegend, {
+			      colorScale,
+			      radius: 8,
+			      spacing: 20,
+			      textOffset: 15
+			    });
+
+	};
+
+	var parseTime = d3.timeParse("%Y");
+
+	d3.csv('earthquakes.csv')
+		.then(data => {
+		    data.forEach(d => {
+		      d.year = parseTime(+d.year);
+		      d.eightPlus = +d['8.0+'];
+		      d.sevenPlus = +d['7_7.9'];
+		      d.sixPlus = +d['6_6.9'];
+		      d.fivePlus = +d['5_5.9'];
+		      d.deaths = +d['Estimated Deaths'];
+		    });
+		    renderChart4(data);
+		  });
+
+</script>

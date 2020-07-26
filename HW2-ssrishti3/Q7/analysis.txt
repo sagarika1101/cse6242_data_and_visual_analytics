@@ -1,0 +1,24 @@
+1. Ease to develop for developers:
+	i) Tableau: Less effort is required; only the data needs to be loaded and the proper layout is to be selected
+	ii) D3: Decent amount of programming effort is required to visualize the data in desired form
+	iii) Excel: Minimal effort required; data can be visualized in a tabular form by just loading the file into Excel
+
+2. Ease to maintain the visualization for developers:
+	i) Tableau: Easy to maintain and change the layout of the visualization
+	ii) D3: Easy to maintain; effort required to change the layout of the visualization 
+	iii) Excel: If data is being represented using pivot table, hard to maintain and cannot easily scale to changing data
+
+3. Usability of visualization developed for end users:
+	i) Tableau: Features like colored bar charts and legends provide for meaningful and easy to understand visualizations for the end-user.
+	ii) D3: Features like tooltips allow for the end-user to interact with the visualization and better understand it
+	iii) Excel: User can only see the visualization that is presented; hard to make sense of data in a tabular form
+
+4. Scalability of visualization to “large” datasets:
+	i) Tableau: Might have difficulty in scaling to large datasets; data from large number of rows cannot be easily depicted
+	ii) D3: Can easily scale to large datasets; features like select box can aid with this
+	iii) Excel: Visualization becomes difficult once the dataset becomes too large; hard to keep track of data
+
+5. System requirements to run the visualization
+	i) Tableau: User needs to have Tableau software installed and a license in order to use it
+	ii) D3: Only the D3 library is needed, which is freely available; no other system requirements
+	iii) Excel: User only needs to have MS Excel installed

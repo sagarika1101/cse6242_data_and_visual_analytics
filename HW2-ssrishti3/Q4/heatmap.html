@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+	<style type="text/css">
+		.label {
+		  font-weight: bold;
+		}
+
+		.tile {
+		  shape-rendering: crispEdges;
+		}
+
+		.axis path,
+		.axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}				
+	</style>
+	<title>Earthquake Counts by State</title>
+</head>
+
+<script src="../lib/d3.v5.min.js"></script>
+<br> Range Of</br>
+<select id="selectBox" onchange="getVal(this)">
+	<option value="0 to 9" selected>0 to 9</option> 
+	<option value="10 to 99">10 to 99</option>
+	<option value="100 to 499">100 to 499</option>
+	<option value="500 or above">500 or above</option>
+</select>
+<svg width="1350" height="500" id="svg1"></svg>  
+
+
+<script>
+	const svg1=d3.select('#svg1');
+
+	const width = +svg1.attr('width');
+	const height = +svg1.attr('height');
+
+	const makeChart = category => {
+		d3.csv('earthquakes.csv')
+		.then(data => {
+			var dataZero = [];
+			var dataTen = [];
+			var dataHundred = [];
+			var dataFiveHundred = [];
+		    data.forEach(d => {
+		    	if(d.Category=="0 to 9") {
+		    		const ele1 = {"state":d.States, "year":parseTime(+2010), "count":+d['2010'], "cat":d.Category};
+			    	const ele2 = {"state":d.States, "year":parseTime(+2011), "count":+d['2011'], "cat":d.Category};
+			    	const ele3 = {"state":d.States, "year":parseTime(+2012), "count":+d['2012'], "cat":d.Category};
+			    	const ele4 = {"state":d.States, "year":parseTime(+2013), "count":+d['2013'], "cat":d.Category};
+			    	const ele5 = {"state":d.States, "year":parseTime(+2014), "count":+d['2014'], "cat":d.Category};
+			    	const ele6 = {"state":d.States, "year":parseTime(+2015), "count":+d['2015'], "cat":d.Category};
+			    	dataZero.push(ele1);
+			    	dataZero.push(ele2);
+			    	dataZero.push(ele3);
+			    	dataZero.push(ele4);
+			    	dataZero.push(ele5);
+			    	dataZero.push(ele6);	
+		    	}
+		    	if(d.Category=="10 to 99") {
+		    		const ele1 = {"state":d.States, "year":parseTime(+2010), "count":+d['2010'], "cat":d.Category};
+			    	const ele2 = {"state":d.States, "year":parseTime(+2011), "count":+d['2011'], "cat":d.Category};
+			    	const ele3 = {"state":d.States, "year":parseTime(+2012), "count":+d['2012'], "cat":d.Category};
+			    	const ele4 = {"state":d.States, "year":parseTime(+2013), "count":+d['2013'], "cat":d.Category};
+			    	const ele5 = {"state":d.States, "year":parseTime(+2014), "count":+d['2014'], "cat":d.Category};
+			    	const ele6 = {"state":d.States, "year":parseTime(+2015), "count":+d['2015'], "cat":d.Category};
+			    	dataTen.push(ele1);
+			    	dataTen.push(ele2);
+			    	dataTen.push(ele3);
+			    	dataTen.push(ele4);
+			    	dataTen.push(ele5);
+			    	dataTen.push(ele6);	
+		    	}
+		    	if(d.Category=="100 to 499") {
+		    		const ele1 = {"state":d.States, "year":parseTime(+2010), "count":+d['2010'], "cat":d.Category};
+			    	const ele2 = {"state":d.States, "year":parseTime(+2011), "count":+d['2011'], "cat":d.Category};
+			    	const ele3 = {"state":d.States, "year":parseTime(+2012), "count":+d['2012'], "cat":d.Category};
+			    	const ele4 = {"state":d.States, "year":parseTime(+2013), "count":+d['2013'], "cat":d.Category};
+			    	const ele5 = {"state":d.States, "year":parseTime(+2014), "count":+d['2014'], "cat":d.Category};
+			    	const ele6 = {"state":d.States, "year":parseTime(+2015), "count":+d['2015'], "cat":d.Category};
+			    	dataHundred.push(ele1);
+			    	dataHundred.push(ele2);
+			    	dataHundred.push(ele3);
+			    	dataHundred.push(ele4);
+			    	dataHundred.push(ele5);
+			    	dataHundred.push(ele6);	
+		    	}
+		    	if(d.Category=="500 or above") {
+		    		const ele1 = {"state":d.States, "year":parseTime(+2010), "count":+d['2010'], "cat":d.Category};
+			    	const ele2 = {"state":d.States, "year":parseTime(+2011), "count":+d['2011'], "cat":d.Category};
+			    	const ele3 = {"state":d.States, "year":parseTime(+2012), "count":+d['2012'], "cat":d.Category};
+			    	const ele4 = {"state":d.States, "year":parseTime(+2013), "count":+d['2013'], "cat":d.Category};
+			    	const ele5 = {"state":d.States, "year":parseTime(+2014), "count":+d['2014'], "cat":d.Category};
+			    	const ele6 = {"state":d.States, "year":parseTime(+2015), "count":+d['2015'], "cat":d.Category};
+			    	dataFiveHundred.push(ele1);
+			    	dataFiveHundred.push(ele2);
+			    	dataFiveHundred.push(ele3);
+			    	dataFiveHundred.push(ele4);
+			    	dataFiveHundred.push(ele5);
+			    	dataFiveHundred.push(ele6);	
+		    	}
+		    		      
+		    });
+		    
+			if(category=="0 to 9")
+				renderChart(dataZero);
+			if(category=="500 or above")
+				renderChart(dataFiveHundred);
+			if(category=="10 to 99")
+				renderChart(dataTen);
+			if(category=="100 to 499")
+				renderChart(dataHundred);		
+		    
+		  });
+	}
+
+	var category = "0 to 9";
+	makeChart(category);
+	var getVal = sel => {
+		document.getElementById("svg1").innerHTML = "";
+		category = sel.value;
+		makeChart(category);
+	}
+
+	const renderChart = data => {
+
+		const title = "Visualizing Earthquake counts by State 2010-2015";
+
+		const xAxisLabel = "State";
+		const yAxisLabel = "Year";
+
+		const states = [ ...new Set(data.map(d => d.state))];
+		states.push("");
+		const xRange = [];
+		for(var i=0; i<states.length; i++){
+			xRange.push(i*35);
+		}
+
+		const xValue = d => d.state;
+		const yValue = d => d.year;
+		const zValue = d=> d.count;
+
+		const margin = { top: 60, right: 160, bottom: 88, left: 105 };
+		const innerWidth = width - margin.left - margin.right;
+		const innerHeight = height - margin.top - margin.bottom;
+
+		const xScale = d3.scaleOrdinal()
+							.domain(states)
+							.range(xRange);
+
+		var yStep = 3154e+7;  //number of seconds in a year
+		var xStep = 35;  //dummy string
+
+		const yScale = d3.scaleTime()
+							.domain([d3.max(data,yValue),d3.min(data,yValue)])
+							.range([innerHeight,0]);
+
+		const zScale = d3.scaleLinear()
+							.domain([d3.min(data,zValue),d3.max(data,zValue)])
+							.range(['#fff5f0','#67000d'])
+
+		//add padding to scales
+		yScale.domain([yScale.domain()[0], yScale.domain()[1] - yStep]);
+
+		//chart1
+		const g1 = svg1.append('g')
+    					.attr('transform', `translate(${margin.left},${margin.top})`);
+
+    	const xAxis = d3.axisBottom(xScale)
+					    .tickPadding(36)
+					    .tickSize(0);
+		  
+		const yAxis = d3.axisLeft(yScale)
+					    .tickPadding(10)
+					    .tickSize(0)
+					    .ticks(5);
+
+		//chart1
+		const yAxisG1 = g1.append('g').call(yAxis)
+							.selectAll('text')
+								.attr('transform', `translate(0,-25)`);
+
+		//chart1
+		yAxisG1.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', -60)
+			      .attr('x', -innerHeight / 2)
+			      .attr('fill', 'black')
+			      .attr('transform', `rotate(-90)`)
+			      .attr('text-anchor', 'middle')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(yAxisLabel);
+
+		//chart1
+		const xAxisG1 = g1.append('g').call(xAxis)
+    						.attr('transform', `translate(0,${innerHeight})`)
+    					.selectAll('text')
+    						.attr('transform', 'translate(-18,0)rotate(-45)' );
+
+    	//chart1
+    	xAxisG1.append('text')
+			      .attr('class', 'axis-label')
+			      .attr('y', 60)
+			      .attr('x', innerWidth / 2)
+			      .attr('fill', 'black')
+			      .attr("stroke", "black")
+       			  .attr("font-size", "18px")
+			      .text(xAxisLabel);
+
+		//append tiles
+		g1.selectAll(".tile")
+	      .data(data)
+	    .enter()
+	    	.append("rect")
+		      .attr("class", "tile")
+		      .attr("x", function(d) { return (xScale(d.state) + 1); })
+		      .attr("y", function(d) { return (yScale(d.year) - 60); })
+		      .attr("width", 35)
+		      .attr("height",  60)
+		      .style("fill", function(d) { return zScale(d.count); })
+		      .on("mouseover", handleMouseOver)
+              .on("mouseout", handleMouseOut)
+              ;
+
+        svg1.append('rect')
+        		.attr('x',50)
+        		.attr('y',10)
+        		.attr('width',50)
+        		.attr('height',50)
+        		.attr('fill','white');
+
+        // Create Event Handlers for mouse
+        function handleMouseOver(d) {  
+            g1.append("text")
+            	.attr('id',function() {
+            		date = new Date(d.year)
+            		yr = date.getFullYear();  //year as int
+            		id =  "t" + d.count + yr;
+            		return id;
+            	})
+            	.attr('x',200)
+            	.attr('y',-15)
+            	.text(function() {
+            		date = new Date(d.year)
+            		yr = date.getFullYear();
+	              text = (d.state + " " + yr + ":" + d.count);
+	              //console.log(text);
+	              return text;
+	            })
+	            .attr('stroke','black');
+          }
+
+        function handleMouseOut(d) {
+        	date = new Date(d.year)
+            yr = date.getFullYear();
+        	id = "#t" + d.count + yr;
+            d3.select(id).remove();  
+          }
+  
+	    //chart1
+	    g1.append('text')
+	      .attr('class', 'title')
+	      .attr('y', -40)
+	      .attr('x',180)
+	      .attr('stroke','black')
+	      .attr('font-size','18px')
+	      .text(title);
+
+	    
+	    // Add a legend for the color values.
+		var legend = g1.selectAll(".legend")
+		  .data(zScale.ticks(9).slice(1).reverse())
+		.enter().append("g")
+		  .attr("class", "legend")
+		  .attr("transform", function(d, i) { return "translate(" + (500) + "," + (20 + i * 20) + ")"; });
+
+		legend.append("rect")
+		  .attr("width", 20)
+		  .attr("height", 20)
+		  .style("fill", zScale);
+
+		legend.append("text")
+		  .attr("x", 26)
+		  .attr("y", 10)
+		  .attr("dy", ".35em")
+		  .text(String);
+
+		g1.append("text")
+		  .attr("class", "label")
+		  .attr("x", 500)
+		  .attr("y", 5)
+		  .attr("dy", ".35em")
+		  .text("Count");
+
+	};
+
+	var parseTime = d3.timeParse("%Y");
+
+	
+</script>
+	
+
